@@ -5,7 +5,14 @@ from flask import Flask, request, jsonify
 from flask_cors import CORS
 
 app = Flask(__name__)
-CORS(app, origins="*")
+
+# Enable CORS with explicit configuration
+CORS(app, 
+     resources={r"/api/*": {"origins": "*"}},
+     methods=["GET", "POST", "OPTIONS"],
+     allow_headers=["Content-Type"],
+     expose_headers=["Content-Type"],
+     supports_credentials=False)
 
 # Load telemetry data at startup
 data_path = os.path.join(os.path.dirname(__file__), '../q-vercel-latency.json')
