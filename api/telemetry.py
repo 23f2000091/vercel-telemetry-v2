@@ -56,9 +56,13 @@ def telemetry():
                 "breaches": breaches
             }
 
-        return jsonify(metrics), 200
+        # Wrap in regions object for client compatibility
+        response_data = {"regions": metrics}
+        return jsonify(response_data), 200
 
     except Exception as e:
+        import traceback
+        traceback.print_exc()
         return jsonify({"error": str(e)}), 400
 
 
