@@ -1,23 +1,22 @@
 import json
 import os
 import numpy as np
-from flask import Flask, request, jsonify
-from flask_cors import CORS
+from flask import Flask, request, jsonify, make_response
 
 app = Flask(__name__)
-
-# Enable CORS with explicit configuration
-CORS(app, 
-     resources={r"/api/*": {"origins": "*"}},
-     methods=["GET", "POST", "OPTIONS"],
-     allow_headers=["Content-Type"],
-     expose_headers=["Content-Type"],
-     supports_credentials=False)
 
 # Load telemetry data at startup
 data_path = os.path.join(os.path.dirname(__file__), '../q-vercel-latency.json')
 with open(data_path) as f:
     telemetry_data = json.load(f)
+
+@app.after_request
+def add_cors_headers(response):
+    response.headers['Access-Control-Allow-Origin'] = '*'
+    response.headers['Access-Control-Allow-Methods'] = 'POST, OPTIONS, GET'
+    response.headers['Access-Control-Allow-Headers'] = 'Content-Type'
+    response.headers['Access-Control-Max-Age'] = '86400'
+    return response
 
 @app.route('/api/telemetry', methods=['POST', 'OPTIONS'])
 def telemetry():
