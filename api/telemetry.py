@@ -1,7 +1,7 @@
 import json
 import os
 import numpy as np
-from flask import Flask, request, jsonify, make_response
+from flask import Flask, request, jsonify
 
 app = Flask(__name__)
 
@@ -12,16 +12,25 @@ with open(data_path) as f:
 
 @app.after_request
 def add_cors_headers(response):
+    """Add CORS headers to all responses"""
     response.headers['Access-Control-Allow-Origin'] = '*'
-    response.headers['Access-Control-Allow-Methods'] = 'POST, OPTIONS, GET'
-    response.headers['Access-Control-Allow-Headers'] = 'Content-Type'
-    response.headers['Access-Control-Max-Age'] = '86400'
+    response.headers['Access-Control-Allow-Methods'] = 'GET, POST, OPTIONS'
+    response.headers['Access-Control-Allow-Headers'] = 'Content-Type, Accept'
+    response.headers['Access-Control-Max-Age'] = '3600'
+    # Remove Vary header if it conflicts
+    if 'Vary' in response.headers:
+        del response.headers['Vary']
     return response
 
 @app.route('/api/telemetry', methods=['POST', 'OPTIONS'])
 def telemetry():
+    """Process telemetry metrics request"""
     if request.method == 'OPTIONS':
-        return '', 200
+        response = make_response('', 200)
+        response.headers['Access-Control-Allow-Origin'] = '*'
+        response.headers['Access-Control-Allow-Methods'] = 'GET, POST, OPTIONS'
+        response.headers['Access-Control-Allow-Headers'] = 'Content-Type, Accept'
+        return response
     
     try:
         request_data = request.get_json()
